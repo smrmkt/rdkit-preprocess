@@ -3,11 +3,13 @@
 - AWS ブログに掲載されている，[化合物溶解度予測ワークフロー](https://aws.amazon.com/jp/blogs/news/build-an-online-compound-solubility-prediction-workflow-with-aws-batch-and-amazon-sagemaker/) を実行するための手順書です
 - 元のブログでは説明や記述が足りていないため，こちらで実行可能な形にまとめました
 
-### 全体像
+## 全体像
 
 以下のような形になります．これらのうち，ジョブ実行用のコンテナについては，すでにこちら側で作成したものを使って行います．コンテナイメージの中身については，container/ ディレクトリをご確認ください．
 
 ![オーバービュー](images/overview.gif)
+
+## AWS Batch による前処理
 
 ### S3 バケットの作成
 
@@ -62,12 +64,44 @@
         - `INPUT_SMILES_S3`: `rdkit-preprocess-input`
         - `OUTPUT_SMILES_S3`: 先ほど作成した S3 バケット名を入力
 
-#### ジョブを実行する
+### バッチジョブの実行
 
 - 左メニューの [ジョブ] を選択して，[ジョブの作成] ボタンを押す
 - 設定画面で，以下を入力して，[ジョブの送信] を押す
     - ジョブ名: `batch-rdkit-job-XX`
     - ジョブ定義: 先ほど作成した `batch-rdkit-job-defnition-XX` を選択
+
+### 結果の確認
+
+- S3 のページにいって，先ほど作成したバケットを開いてください
+- `f9e8890b-90ed-450f-859c-a4e007390e30_smiles_result.csv` のようなファイルがあれば，処理が完了しています　
+- この結果を使って，続いて SageMaker で簡単な機械学習のモデルを作成します
+
+## SageMaker で機械学習を実行
+
+### ノートブックインスタンスのセットアップ
+
+- SageMaker のページに行って，左メニューのノートブックインスタンスを選択
+- 右側 [ノートブックインスタンスの作成] を押して設定画面を開き，以下の内容を入力して [ノートブックインスタンスの作成] ボタンを押します
+    - ノートブックインスタンス名: `sagemaker-rdkit-notebook-XX`
+    - IAM ロール: 以下の手順で新しいロールを作成
+        - [新しいロールの作成] を選択
+        - [指定する S3 バケット] で [任意の S3 バケット] を選ぶ
+        - [ロールの作成を押す
+- 数分待つと，作成したインスタンスが `InService` になるので，右側の [オープン] を押して Jupyter Notebook を開く
+
+### ノートブックの準備
+
+- 右側 [New] から [Terminal] を選択して，ターミナル画面を立ち上げる
+- ターミナル画面で，以下のコマンドを入力
+
+```
+cd SageMaker/
+wget https://s3.amazonaws.com/aws-ml-blog/artifacts/compound-solubility-prediction-workflow/RDKit-S3.ipynb
+```
+
+- ノートブックのファイルエクスプローラ画面に戻って，`RDKit-S3.ipynb` を開く
+- あとはノートブックを実行していきます
 
 
 
