@@ -56,6 +56,7 @@
 - 左メニューの [ジョブ定義] を選択して，[作成] ボタンを押す
 - 設定画面で，次の部分を記入して [ジョブ定義の作成] を押す
     - ジョブ定義名: `batch-rdkit-job-defnition-XX`
+    - イメージ: 666254511816.dkr.ecr.ap-northeast-1.amazonaws.com/rdkit/preprocess
     - コマンド: `python /data/mp_calculate_descriptors.py`
     - 環境変数: 以下の 2 つを作成
         - `INPUT_SMILES_S3`: `rdkit-preprocess-input`
