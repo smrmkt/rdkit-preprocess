@@ -106,10 +106,11 @@ if __name__ == "__main__":
 # by default, parallelism expands to available cores exposed to the container
     elif os.getenv('INPUT_SMILES_S3'):
         env_S3_SMILES=os.environ['INPUT_SMILES_S3']
-        s3_dn=subprocess.Popen("aws s3 cp %s /data" %env_S3_SMILES, shell=True)
-        s3_dn.communicate()
-        s3_file=env_S3_SMILES.split('/')[-1]
-        infile=open("/data/%s" %s3_file,"r")
+        s3.download_file(env_S3_SMILES, 'deepchem.smiles', '/data/deepchem.smiles')
+#        s3_dn=subprocess.Popen("aws s3 cp %s /data" %env_S3_SMILES, shell=True)
+#        s3_dn.communicate()
+#        s3_file=env_S3_SMILES.split('/')[-1]
+        infile=open("/data/deepchem.smiles", "r")
         pool = mp.Pool()
         start_calc=datetime.datetime.now()
         smiles_list=list(infile)
@@ -118,7 +119,7 @@ if __name__ == "__main__":
         end_calc=datetime.datetime.now()
         delta_calc=end_calc-start_calc
         stat_calc=calc_perf(smiles_list,delta_calc)
-        print ("number of structures/sec: %s"%stat_calc)
+        print ("number of structures/sec: %s" %stat_calc)
         s3_upload(csv_header)
 
     else:
