@@ -4,7 +4,7 @@ MAINTAINER smrmkt <smkrmkt@gmail.com>
 RUN conda install -y -c rdkit rdkit \
     && pip install boto3 \
     && pip install awscli \
-    && mkdir -p /data↲
+    && mkdir -p /data
 
 COPY mp_calculate_descriptors.py /data/
 
