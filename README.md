@@ -97,19 +97,9 @@
 
 ```
 cd SageMaker/
-wget https://s3.amazonaws.com/aws-ml-blog/artifacts/compound-solubility-prediction-workflow/RDKit-S3.ipynb
+wget https://s3.amazonaws.com/rdkit-preprocess-input/RDKit-S3.ipynb
 ```
 
 - ノートブックのファイルエクスプローラ画面に戻って，`RDKit-S3.ipynb` を開く
 - あとはノートブックを実行していきます
-
-
-
-
-
-
-
-
-
-
 
