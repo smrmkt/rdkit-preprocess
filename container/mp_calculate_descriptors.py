@@ -56,71 +56,72 @@ def calc_perf(input_file,timedelta):
 
 if __name__ == "__main__":
 # accepted args for command line execution
-   parser = argparse.ArgumentParser(description='Process SMILES')
-   parser.add_argument("-i", dest="smiles", required=False, help='SMILES string')
-   parser.add_argument("-f", dest="smiles_file", required=False, help="File for Batch SMILES processing")
-   args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Process SMILES')
+    parser.add_argument("-i", dest="smiles", required=False, help='SMILES string')
+    parser.add_argument("-f", dest="smiles_file", required=False, help="File for Batch SMILES processing")
+    args = parser.parse_args()
 
-   smiles_str=args.smiles
-   smiles_files=args.smiles_file
-   csv_header=str(uuid.uuid4())
-   
+    smiles_str=args.smiles
+    smiles_files=args.smiles_file
+    csv_header=str(uuid.uuid4())
+
 # if defined on the command line
-   if smiles_str:
-      print (smiles_desc(smiles_str))
-      smiles_out(str(smiles_desc(smiles_str)),csv_header)
-      s3_upload(csv_header)
-      
+    if smiles_str:
+        print (smiles_desc(smiles_str))
+        smiles_out(str(smiles_desc(smiles_str)),csv_header)
+        s3_upload(csv_header)
+
 # if importing a file
 # by default, parallelism expands to available cores exposed to the container
-   elif smiles_files:
-      infile=open(smiles_files,"r")
-      pool = mp.Pool()
-      start_calc=datetime.datetime.now()
-      smiles_list=list(infile)
-      pool.map(smiles_desc,smiles_list)
-      pool.close()
-      end_calc=datetime.datetime.now()
-      delta_calc=end_calc-start_calc
-      stat_calc=calc_perf(smiles_list,delta_calc)
-      print ("number of structures/sec: %s"%stat_calc)
-      s3_upload(csv_header)
+    elif smiles_files:
+        infile=open(smiles_files,"r")
+        pool = mp.Pool()
+        start_calc=datetime.datetime.now()
+        smiles_list=list(infile)
+        pool.map(smiles_desc,smiles_list)
+        pool.close()
+        end_calc=datetime.datetime.now()
+        delta_calc=end_calc-start_calc
+        stat_calc=calc_perf(smiles_list,delta_calc)
+        print ("number of structures/sec: %s"%stat_calc)
+        s3_upload(csv_header)
 
 # if file is defined through env
 # by default, parallelism expands to available cores exposed to the container
-   elif os.getenv('INPUT_SMILES'):
-      env_SMILES=os.environ['INPUT_SMILES']
-      infile=open(env_SMILES,"r")
-      pool = mp.Pool()
-      start_calc=datetime.datetime.now()
-      smiles_list=list(infile)
-      pool.map(smiles_desc,smiles_list)
-      pool.close()
-      end_calc=datetime.datetime.now()
-      delta_calc=end_calc-start_calc
-      stat_calc=calc_perf(smiles_list,delta_calc)
-      print ("number of structures/sec: %s"%stat_calc)
-      s3_upload(csv_header)
+    elif os.getenv('INPUT_SMILES'):
+        env_SMILES=os.environ['INPUT_SMILES']
+        infile=open(env_SMILES,"r")
+        pool = mp.Pool()
+        start_calc=datetime.datetime.now()
+        smiles_list=list(infile)
+        pool.map(smiles_desc,smiles_list)
+        pool.close()
+        end_calc=datetime.datetime.now()
+        delta_calc=end_calc-start_calc
+        stat_calc=calc_perf(smiles_list,delta_calc)
+        print ("number of structures/sec: %s"%stat_calc)
+        s3_upload(csv_header)
 
 # if file is in the S3 import bucket, specify an AWS BATCH job def
 # by default, parallelism expands to available cores exposed to the container
-   elif os.getenv('INPUT_SMILES_S3'):
-      env_S3_SMILES=os.environ['INPUT_SMILES_S3']
-      s3_dn=subprocess.Popen("aws s3 cp %s /data" %env_S3_SMILES, shell=True)
-      s3_dn.communicate()
-      s3_file=env_S3_SMILES.split('/')[-1]
-      infile=open("/data/%s" %s3_file,"r")
-      pool = mp.Pool()
-      start_calc=datetime.datetime.now()
-      smiles_list=list(infile)
-      pool.map(smiles_desc,smiles_list)
-      pool.close()
-      end_calc=datetime.datetime.now()
-      delta_calc=end_calc-start_calc
-      stat_calc=calc_perf(smiles_list,delta_calc)
-      print ("number of structures/sec: %s"%stat_calc)
-      s3_upload(csv_header)
+    elif os.getenv('INPUT_SMILES_S3'):
+        env_S3_SMILES=os.environ['INPUT_SMILES_S3']
+        s3_dn=subprocess.Popen("aws s3 cp %s /data" %env_S3_SMILES, shell=True)
+        s3_dn.communicate()
+        s3_file=env_S3_SMILES.split('/')[-1]
+        infile=open("/data/%s" %s3_file,"r")
+        pool = mp.Pool()
+        start_calc=datetime.datetime.now()
+        smiles_list=list(infile)
+        pool.map(smiles_desc,smiles_list)
+        pool.close()
+        end_calc=datetime.datetime.now()
+        delta_calc=end_calc-start_calc
+        stat_calc=calc_perf(smiles_list,delta_calc)
+        print ("number of structures/sec: %s"%stat_calc)
+        s3_upload(csv_header)
 
-   else:
-      print ("No SMILES FOUND...")
-      sys.exit(0)
+    else:
+        print ("No SMILES FOUND...")
+        sys.exit(0)
+
